@@ -18,5 +18,8 @@ mint: usage: mint [options] [source-file] [args]
 -h    Display this information and exit
 ```
 
+## Adding custom instructions
+Declare a function named `_(source file extension)` in file `mint_lib/_(source file extension).sh`. Function should take two arguments (source filename, executable filename) and return 0 in case of successful compilation.
+
 ## License
 This code is released under an MIT License. You are free to use, modify, distribute, or sell it under those terms.
