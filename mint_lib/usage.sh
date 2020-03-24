@@ -1,5 +1,5 @@
 usage () {
-	echo mint: usage: mint [options] [source-file] [args] >&2
+	echo "mint: usage: mint [options] [source-file] [args]" >&2
 	! test $1 && echo mint: use -h for more information. >&2 || \
 	echo "-e    Do not delete the executable" \
 	   "\n-r    Output exit code of the process" \
