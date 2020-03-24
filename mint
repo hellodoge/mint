@@ -8,10 +8,11 @@ LIB=$(dirname $0)/mint_lib
 
 while echo $1 | sed '/^-/!{q1}' > /dev/null; do
 	args=$args$1 ; shift
-	[ ! -n "$1" ] && usage && exit 1
+	[ ! -n "$1" ] && break
 done
 
 echo $args | sed '/h/!{q1}' > /dev/null && usage help && exit 1
+[ ! -n "$1" ] && usage && exit 1
 
 file=$1
 ext=$(echo $1 | sed s~.*\\\.\\\([^\\\.]*\\\)$~\\1~)
