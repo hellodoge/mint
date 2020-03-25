@@ -19,19 +19,19 @@ ext=$(echo $1 | sed s~.*\\\.\\\([^\\\.]*\\\)$~\\1~)
 base=$(echo $1 | sed s~\\\(.*\\\)\\\.[^\\\.]*$~\\1~)
 shift
 
-[ ! -f $file ] && \
+[ ! -f $file ] &&
 	echo mint: file $file not found && exit 2
 
-[ ! -f $LIB/_$ext.sh ] && \
-	echo mint: no instructions specified for \'.$ext\' file \
-	&& exit 3
+[ ! -f $LIB/_$ext.sh ] &&
+	echo mint: no instructions specified for \'.$ext\' file &&
+	exit 3
 
 . $LIB/_$ext.sh
 _$ext $file _$base || exit 4
 
 
 ./_$base $@ ; rc=$?
-echo $args | sed '/r/!{q1}' > /dev/null && \
+echo $args | sed '/r/!{q1}' > /dev/null &&
 	echo Process finished with exit code $rc
-echo $args | sed '/e/!{q1}' > /dev/null || \
+echo $args | sed '/e/!{q1}' > /dev/null ||
 	rm _$base
