@@ -4,34 +4,49 @@ LIB=$(dirname $0)/mint_lib
 
 . $LIB/usage.sh
 
-[ ! -n "$1" ] && usage && exit 1
-
 while echo $1 | sed '/^-/!{q1}' > /dev/null; do
-	args=$args$1 ; shift
-	[ ! -n "$1" ] && break
+	case $1 in
+		-r|--return)
+			return_code=true ;;
+		-e|--executable)
+			keep_executable=true ;;
+		-f|--flags)
+			flags=$2
+			shift ;;
+		-s|--silent)
+			compiler_output="/dev/null" ;;
+		-h|--help)
+			usage full
+			exit ;;
+		*)
+			echo "mint: $1: invalid option"
+	esac
+	shift
 done
 
-echo $args | sed '/h/!{q1}' > /dev/null && usage help && exit 1
-[ ! -n "$1" ] && usage && exit 1
+[ ! "$1" ] && usage && exit 1
 
-file=$1
-ext=$(echo $1 | sed s~.*\\\.\\\([^\\\.]*\\\)$~\\1~)
-base=$(echo $1 | sed s~\\\(.*\\\)\\\.[^\\\.]*$~\\1~)
+[ ! "$compiler_output" ] && compiler_output="/dev/stdout" 
+
+filename=$1
+ext=$(echo $filename | sed s~.*\\\.\\\([^\\\.]*\\\)$~\\1~)
+base=$(echo $filename | sed s~\\\(.*\\\)\\\.[^\\\.]*$~\\1~)
 shift
 
-[ ! -f $file ] &&
-	echo mint: file $file not found && exit 2
+[ ! -f $filename ] &&
+	echo mint: file $filename not found &&
+	exit 1
 
 [ ! -f $LIB/_$ext.sh ] &&
 	echo mint: no instructions specified for \'.$ext\' file &&
-	exit 3
+	exit 2
 
 . $LIB/_$ext.sh
-_$ext $file _$base || exit 4
-
+_$ext $filename _$base "$flags" > $compiler_output 2>&1 ||
+	exit 3
 
 ./_$base $@ ; rc=$?
-echo $args | sed '/r/!{q1}' > /dev/null &&
+[ $return_code ] &&
 	echo Process finished with exit code $rc
-echo $args | sed '/e/!{q1}' > /dev/null ||
+[ $keep_executable ] ||
 	rm _$base
