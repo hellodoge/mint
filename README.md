@@ -7,7 +7,8 @@ rm -rf /tmp/mint_repo
 git clone https://github.com/hellodoge/mint.git /tmp/mint_repo
 rm /tmp/mint_repo/{README.md,LICENSE}
 test -d $HOME/bin || mkdir $HOME/bin
-mv -b /tmp/mint_repo/* $HOME/bin/
+mv /tmp/mint_repo/mint $HOME/bin/
+test -d $HOME/bin/mint_lib || mv /tmp/mint_repo/mint_lib $HOME/bin
 chmod +x $HOME/bin/mint
 ```
 
