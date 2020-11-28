@@ -11,7 +11,7 @@ while echo $1 | sed '/^-/!{q1}' > /dev/null; do
 		-e|--executable)
 			keep_executable=true ;;
 		-f|--flags)
-			flags=$2
+			flags="$flags $2"
 			shift ;;
 		-s|--silent)
 			compiler_output="/dev/null" ;;
