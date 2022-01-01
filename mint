@@ -1,52 +1,50 @@
 #!/bin/sh
 
-LIB=$(dirname $0)/mint_lib
+usage () {
+    echo "mint: usage: mint [options] [compile string]"
+    echo "'e'    Keep the executable" \
+       "\n'r'    Output exit code of the process" \
+       #"\ns        Run the compiler silently"
+}
 
-. $LIB/usage.sh
+if echo "$1" | sed '/^\w\+$/!{q1}' > /dev/null; then
+    options="$1" && shift
+fi
 
-while echo $1 | sed '/^-/!{q1}' > /dev/null; do
-	case $1 in
-		-r|--return)
-			return_code=true ;;
-		-e|--executable)
-			keep_executable=true ;;
-		-f|--flags)
-			flags="$flags $2"
-			shift ;;
-		-s|--silent)
-			compiler_output="/dev/null" ;;
-		-h|--help)
-			usage full
-			exit ;;
-		*)
-			echo "mint: $1: invalid option"
-	esac
-	shift
+for char in `echo -n "$options" | fold -w 1`; do
+    case $char in
+        "r")
+            return_code=1 ;;
+        "e")
+            keep_executable=1 ;;
+        *)
+            echo "mint: unknown option: '$char'"
+            usage && exit 1
+    esac
 done
 
-[ ! "$1" ] && usage && exit 1
+[ -z "$1" ] && usage && exit 1
 
-[ ! "$compiler_output" ] && compiler_output="/dev/stdout" 
+compile_string=""
 
-filename=$1
-ext=$(echo $filename | sed s~.*\\\.\\\([^\\\.]*\\\)$~\\1~)
-base=$(echo $filename | sed s~\\\(.*\\\)\\\.[^\\\.]*$~\\1~)
-shift
+while [ ! "$1" = "--" ]; do
+    compile_string="$compile_string $1" && shift
+    [ -z "$1" ] && break
+done
 
-[ ! -f $filename ] &&
-	echo mint: file $filename not found &&
-	exit 1
+[ "$1" = "--" ] && shift
 
-[ ! -f $LIB/_$ext.sh ] &&
-	echo mint: no instructions specified for \'.$ext\' file &&
-	exit 2
+extension=$(echo $compile_string | grep -o '\.\w\+' | grep -o '\w\+' | head -n1)
 
-. $LIB/_$ext.sh
-_$ext $filename _$base "$flags" > $compiler_output 2>&1 ||
-	exit 3
+[ ! -f "$HOME/.mint/$extension.sh" ] &&
+    echo mint: no instructions specified for \'.$extension\' file && exit 1
 
-./_$base $@ ; rc=$?
+. "$HOME/.mint/$extension.sh"
+_compile $compile_string || exit $?
+
+_exec $@ ; code=$?
 [ $return_code ] &&
-	echo Process finished with exit code $rc
+    echo Process finished with exit code $code
+
 [ $keep_executable ] ||
-	rm _$base
+    _cleanup

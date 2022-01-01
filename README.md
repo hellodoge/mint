@@ -5,25 +5,20 @@ A script that compiles and runs the source code
 ```
 rm -rf /tmp/mint_repo
 git clone https://github.com/hellodoge/mint.git /tmp/mint_repo
-rm /tmp/mint_repo/{README.md,LICENSE}
 test -d $HOME/bin || mkdir $HOME/bin
 mv /tmp/mint_repo/mint $HOME/bin/
-test -d $HOME/bin/mint_lib || mv /tmp/mint_repo/mint_lib $HOME/bin
-chmod +x $HOME/bin/mint
+test -d $HOME/.mint || mv /tmp/mint_repo/.mint $HOME/.mint
 ```
 
 ## Usage
 ```
-mint: usage: mint [options] [source-file] [args]
--e, --executable    Keep the executable 
--r, --return        Output exit code of the process 
--s, --silent        Run the compiler silently 
--f, --flags [flags] Pass the flags to the compiler 
--h, --help          Display this information and exit
+mint: usage: mint [options] [compile string]
+'e'    Keep the executable
+'r'    Output exit code of the process
 ```
 
-## Adding custom instructions
-Declare a function named `_(source file extension)` in file `mint_lib/_(source file extension).sh`. Function should take three arguments (source filename, executable filename, flags) and return 0 in case of successful compilation.
+## How to add user instructions
+Declare a function named `_compile` in file `$HOME/.mint/_(source file extension).sh`. The function should take three arguments (source filename, executable filename, flags) and return 0 in case of successful compilation. There should be two others functions: `_exec` will run the program and `_cleanup` will delete the executable.
 
 ## License
 This code is released under an MIT License. You are free to use, modify, distribute, or sell it under those terms.
