@@ -2,17 +2,20 @@
 
 usage () {
     echo "mint: usage: mint [options] [compile string]"
-    echo "'e'    Keep the executable" \
-       "\n'r'    Output exit code of the process" \
+    echo "'-e'    Keep the executable" \
+       "\n'-r'    Output exit code of the process" \
        #"\ns        Run the compiler silently"
 }
 
-if echo "$1" | sed '/^\w\+$/!{q1}' > /dev/null; then
-    options="$1" && shift
-fi
+while echo "$1" | sed '/^-\?\w\+$/!{q1}' > /dev/null; do
+    options="$options""$1" && shift
+done
+
+[ "$1" = "--" ] && shift
 
 for char in `echo -n "$options" | fold -w 1`; do
     case $char in
+        "-") ;;
         "r")
             return_code=1 ;;
         "e")
